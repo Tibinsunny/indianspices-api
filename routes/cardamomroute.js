@@ -141,8 +141,10 @@ cardamomRoute.get("/update",async(req,res) => {
     }
     else
     {
+        let length = getDetails.length;
+        let updateInc = await dataModel.updateMany({},{$inc:{sl:length}})
         for (let index = 0; index < getDetails.length; index++) {
-            let element = getDetails[index]
+            let element = getDetails[index];
            let updateData = await dataModel(element);
            let saveData = await updateData.save()
            temp=index;
