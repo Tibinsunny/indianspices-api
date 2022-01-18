@@ -3,7 +3,7 @@ const cardamomRoute =express.Router();
 const axios = require("axios");
 const cheerio = require("cheerio");
 const rateLimit = require('express-rate-limit');
-
+const dataModel = require("../model/alldata")
 const limiter = rateLimit({
 	windowMs: 15 * 60 * 1000, // 15 minutes
 	max: 10, // Limit each IP to 10 requests per `window` (here, per 15 minutes)
@@ -32,7 +32,8 @@ async function getData(options,pageData){
     }
     else
     {
-         url = "http://www.indianspices.com/marketing/price/domestic/daily-price-small.html";
+        url = "http://www.indianspices.com/marketing/price/domestic/daily-price-small.html";
+         
     }
     let allData = [];
   const { data } = await axios.get(url);
@@ -44,7 +45,7 @@ async function getData(options,pageData){
      // allData.push(tableRow.text().replace(/  /g,'').replace(/\n/g, ",").replace(/\t/g,"").split)
      let parser = (tableRow.text().replace(/  /g,'').replace(/\n/g, "_").replace(/\t/g,"").split("_"));
      allData.push({
-          sl:parser[1],
+          sl:Number(parser[1]),
           date:parser[2],
           Auctioneer:parser[3],
           Lots:parser[4],
@@ -59,6 +60,7 @@ async function getData(options,pageData){
    }
    if(options=="today")
    {
+       console.log(url)
     let temp=true;
     for (let index = 1; index < 4; index++) {
         let tableRow = $(`div.tabstable:nth-child(7) > table:nth-child(1) > tbody:nth-child(1)> tr:nth-child(${index+1})`) ;
@@ -66,7 +68,7 @@ async function getData(options,pageData){
         if(temp === parser[2] || temp===true)
         {
             allData.push({
-                sl:parser[1],
+                sl:Number(parser[1]),
                 date:parser[2],
                 Auctioneer:parser[3],
                 Lots:parser[4],
@@ -84,13 +86,13 @@ async function getData(options,pageData){
    }
    if(options=="large")
    {
-      console.log("niaAdsaDSD")
+
       let ruler=3;
        for (let index = 0; index <= 10; index++) {
            let tableRow = $(`div.tabstable:nth-child(5) > table:nth-child(3) > tbody:nth-child(1) > tr:nth-child(${ruler})`);
            let parser = (tableRow.text().replace(/  /g,'').replace(/\n/g, "_").replace(/\t/g,"").split("_"));
            allData.push({
-            Sno:parser[1],
+            Sno:Number(parser[1]),
             date:parser[2],
             market:parser[3],
             type:parser[4],
@@ -102,6 +104,10 @@ async function getData(options,pageData){
    }
     return allData;
 }
+cardamomRoute.get("/archieve/all",async(req,res) => {
+    let allData = await dataModel.find({},{_id:0,__v:0}).sort({sl:1});
+    return res.json(allData)
+    })
 cardamomRoute.get("/archieve",async (req,res) => {
 let getDetails = await getData("archieve");
 return res.json(getDetails);
@@ -119,5 +125,33 @@ cardamomRoute.get("/archieve/:pageNo",async(req,res) => {
 let pageNo = req.params.pageNo;
 let getDetails = await getData("page",pageNo);
 return res.json(getDetails)
+})
+
+cardamomRoute.get("/update",async(req,res) => {
+    let temp;
+    let getDetails = await getData("today");
+    let date = getDetails[0].date;
+    let oldValue = await dataModel.find({date:date})
+    console.log(getDetails)
+    if(oldValue.length > 0)
+    {
+        return res.json({
+            error:"Everything is uptodate"
+        })
+    }
+    else
+    {
+        for (let index = 0; index < getDetails.length; index++) {
+            let element = getDetails[index]
+           let updateData = await dataModel(element);
+           let saveData = await updateData.save()
+           temp=index;
+            
+        }
+        return res.json({
+            success:"Updated",
+            updated:`${temp+1} datas`
+        })
+    }
 })
 module.exports = cardamomRoute;

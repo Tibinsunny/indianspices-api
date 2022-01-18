@@ -1,6 +1,8 @@
 const express = require("express");
 const cardamomRoute = require("./routes/cardamomroute");
 const app = express();
+require("./connection/db")
+
 app.use("/cardamom",cardamomRoute);
 
 app.get("/",(req,res) => {
@@ -10,7 +12,7 @@ app.get("/",(req,res) => {
     })
 })
 
-app.listen(3000,(error) => {
+app.listen(process.env.PORT || 3000,(error) => {
     if(error) {
         console.log(error)
     }
