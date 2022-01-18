@@ -5,7 +5,8 @@ app.use("/cardamom",cardamomRoute);
 
 app.get("/",(req,res) => {
     return res.json({
-        welcome:"Welcome to the API /_-_(- -)_-_/"
+        welcome:"Welcome to the API /_-_(- -)_-_/",
+        documentation:"https://random.com"
     })
 })
 

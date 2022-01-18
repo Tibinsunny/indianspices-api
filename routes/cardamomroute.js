@@ -20,10 +20,15 @@ cardamomRoute.use(limiter)
 cardamomRoute.use(express.json())
 let url;
 //const url = `http://localhost:3001/test.html`
-async function getData(options){
+async function getData(options,pageData){
     if(options ==="large")
     {
          url = "http://www.indianspices.com/marketing/price/domestic/daily-price-large.html";
+    }
+    if(options === "page")
+    {
+        url = `http://www.indianspices.com/marketing/price/domestic/daily-price-small.html?page=${pageData}`;
+        options = "archieve";
     }
     else
     {
@@ -79,10 +84,10 @@ async function getData(options){
    }
    if(options=="large")
    {
-      
+      console.log("niaAdsaDSD")
+      let ruler=3;
        for (let index = 0; index <= 10; index++) {
-           let ruler=3;
-           let tableRow = $(`div.tabstable:nth-child(5) > table:nth-child(3) > tbody:nth-child(1) > tr:nth-child(3)`);
+           let tableRow = $(`div.tabstable:nth-child(5) > table:nth-child(3) > tbody:nth-child(1) > tr:nth-child(${ruler})`);
            let parser = (tableRow.text().replace(/  /g,'').replace(/\n/g, "_").replace(/\t/g,"").split("_"));
            allData.push({
             Sno:parser[1],
@@ -97,11 +102,6 @@ async function getData(options){
    }
     return allData;
 }
-cardamomRoute.get("/",(req,res) => {
-    return res.json({
-        welcome:"Welcome to the API /_-_(- -)_-_/"
-    });
-})
 cardamomRoute.get("/archieve",async (req,res) => {
 let getDetails = await getData("archieve");
 return res.json(getDetails);
@@ -114,5 +114,10 @@ cardamomRoute.get("/large",async(req,res) =>{
 let getDetails = await getData("large");
 return res.json(getDetails)
 
+})
+cardamomRoute.get("/archieve/:pageNo",async(req,res) => {
+let pageNo = req.params.pageNo;
+let getDetails = await getData("page",pageNo);
+return res.json(getDetails)
 })
 module.exports = cardamomRoute;
