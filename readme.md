@@ -1,5 +1,5 @@
 # IndianSpices API
-An API to get data from indianspices.com. I managed to scrape the site which allows users to access get all requeired data from a single endpoint
+An API to get data from indianspices.com. I managed to scrape the site which allows users to access and get all requeired data from a single endpoint
 
 ### ⚙  Why I build this ?
 There was no official API to fetch data from the server . Which reduced the number of userful apps and alert systems. So If a public api is avilable users will be able to hit the endpoint to create beautiful apps on the top of this api
